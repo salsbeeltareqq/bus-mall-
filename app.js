@@ -1,21 +1,13 @@
 'use strict'
 
-var productsNames = ["bag", "banana", "bathroom", "boots", "breakfast", "bubblegum", "chair", "cthulhu", "dog-duck",
-    "dragon", "pen", "pet-sweep", "scissors", "shark", "sweep", "tauntaun", "unicorn", "usb", "water-can", "wine-glass"];
-var colorArray = ['#ffe0e0', '#ffebe0', '#fff0e0', '#fff5e0', '#fffae0', '#ffffe0', '#faffe0', '#f5ffe0', '#f0ffe0', '#ebffe0',
-    '#e6ffe0', '#e0ffe0', '#e0ffe6', '#e0ffeb', '#e0fff0', '#e0fff5', '#e0fffa', '#e0ffff', '#e0faff', '#e0f5ff'];
+var productsNames = ["bag", "banana", "bathroom", "boots", "breakfast", "bubblegum", "chair", "cthulhu", "dog-duck", "dragon", "pen", "pet-sweep", "scissors", "shark", "sweep", "tauntaun", "unicorn", "usb", "water-can", "wine-glass"];
 var numberOfselections = 25;
 var randomIndexArray = [];
 var productArray = [];
 var index; //index for productArray 
-var currentSelectedProducts = [];
-
-var displayTimesArray = [];
-var clicksArray = [];
+var selectedProductsArray = [];
 var imagesSection = document.getElementById("imagesSection");
 var aside = document.getElementById("results");
-
-
 
 //Object constructor
 function Product(name) {
@@ -39,8 +31,6 @@ Product.prototype.imageExtension = function () {
     return path;
 
 };
-var emptyObject = new Product("placehold"); //create after the function is defined because it's an inline function
-var previousRoundSelection = [emptyObject, emptyObject, emptyObject];
 
 // create the objects
 function createProducts() {
@@ -64,29 +54,12 @@ function resetDisplayed() {
 
 // create and append elements
 function renderImages() {
-    for (let i = 0; i < currentSelectedProducts.length; i++) {
+    for (let i = 0; i < selectedProductsArray.length; i++) {
         var figure = document.createElement("figure");
-        figure.className = `${currentSelectedProducts[i].name}`
-        figure.innerHTML = `<img class=\"${currentSelectedProducts[i].name}\" src=\"${currentSelectedProducts[i].imgPath}\">`;
+        figure.className=`${selectedProductsArray[i].name}`
+        figure.innerHTML = `<img class=\"${selectedProductsArray[i].name}\" src=\"${selectedProductsArray[i].imgPath}\">`;
 
         imagesSection.appendChild(figure);
-    }
-}
-
-//searches for one product in the previous selection
-function isDisplayedPreviousRound(index) {
-    let flag = false;
-    for (let i = 0; i < 3; i++) {
-        if (previousRoundSelection[i] === currentSelectedProducts[index]) {
-            flag = true;
-        }
-    }
-    return flag;
-}
-
-function updatePreviousRoundSelection() {
-    for (let i = 0; i < currentSelectedProducts.length; i++) {
-        previousRoundSelection[i] = currentSelectedProducts[i];
     }
 }
 
@@ -98,59 +71,15 @@ function selectThreeProducts() {
     for (let i = 0; i < 3; i++) {
         do {
             index = randomIndex();
-            currentSelectedProducts[i] = productArray[index]; //apdat the array of selected items (only three)
-            randomIndexArray[i] = index  //update the array that has the selected indecies
-            //   debugger;
-        } while (productArray[index].displayed || isDisplayedPreviousRound(i))
-
+            selectedProductsArray[i] = productArray[index]; //apdat the array of selected items (only three)
+            randomIndexArray[i]=index  //update the array that has the selected indecies          
+        } while (productArray[index].displayed)
         productArray[index].displayed = !productArray[index].displayed;
         productArray[index].displayTimes++;
+
     }
     renderImages();
-    updatePreviousRoundSelection();
-
-
 }
-
-
-function renderResults() {
-    var ul = document.createElement("ul");
-    ul.textContent = "Results";
-    var item;
-    for (let i = 0; i < productArray.length; i++) {
-        var li = document.createElement("li");
-        item = productArray[i];
-
-        clicksArray[i] = item.clicks;
-        displayTimesArray[i] = item.displayTimes;
-        li.textContent = `${item.name}: ${item.clicks} votes and ${item.displayTimes} times shown`;
-        ul.appendChild(li);
-    }
-    aside.appendChild(ul);
-}
-
-//collect data and create JSON string
-function storageData() {
-    var jsonString = JSON.stringify(productArray);
-    localStorage.setItem("products", jsonString);
-
-
-}
-
-function parseJsonString() {
-    var previousProducts = JSON.parse(localStorage.getItem("products"));
-    updateDataFromStorage(previousProducts);
-
-}
-
-//add previous displaytimes and clicks to new ones
-function updateDataFromStorage(previousProducts) {
-    for (let i = 0; i < productArray.length; i++) {
-        productArray[i].clicks += previousProducts[i].clicks;
-        productArray[i].displayTimes += previousProducts[i].displayTimes;
-    }
-}
-
 
 //event listener
 imagesSection.addEventListener("click", newThreeImages);
@@ -160,72 +89,35 @@ function newThreeImages(event) { //eventlistener
     if (numberOfselections > 0) {
         imagesSection.innerHTML = "";
         numberOfselections--;
-        for (let i = 0; i < randomIndexArray.length; i++) {
-            if (event.target.className === productArray[randomIndexArray[i]].name) {
-                productArray[randomIndexArray[i]].clicks++;
-            }
+        for(let i=0; i<randomIndexArray.length;i++){
+            if (event.target.className === productArray[randomIndexArray[i]].name){
+            productArray[randomIndexArray[i]].clicks++;
+        }
         }
 
         selectThreeProducts();
     } else if (numberOfselections == 0) {
         imagesSection.removeEventListener("click", newThreeImages);
         renderResults();
-        generateChart();
-        storageData();
-        parseJsonString();
-
-
     }
 
 
+}
+
+function renderResults(){
+    var ul = document.createElement("ul");
+    ul.textContent="Results";
+    var item;
+    for(let i=0 ; i<productArray.length ;i++){
+        var li =document.createElement("li");
+        item = productArray[i];
+
+
+        li.textContent=`${item.name} had ${item.clicks} votes and was shown ${item.displayTimes} times`;
+        ul.appendChild(li);
+    }
+    aside.appendChild(ul);
 }
 
 createProducts();
-if (localStorage.length !== 0) {
-    parseJsonString();
-    for (let i = 0; i < clicksArray.length; i++) {
-        clicksArray[i] += previousProducts[i].clicks;
-        displayTimesArray[i] += previousProducts[i].displayTimes;
-    }
-}
 selectThreeProducts();
-
-
-///////// create a chart//////////
-function generateChart() {
-    var cnvs1 = document.getElementById("resultclickschart").getContext('2d');
-    var resultClicksChart = new Chart(cnvs1, {
-        type: 'bar',
-        data: {
-            labels: productsNames,
-            datasets: [{
-                //two data set object
-                label: "clicks",
-                data: clicksArray, //change the array to display new results 
-                backgroundColor: colorArray,
-                borderColor: colorArray,
-                borderWidth: 1,
-                
-            },
-            {
-                label: "display times",
-                data: displayTimesArray,
-                backgroundColor: colorArray,
-                borderColor: colorArray,
-                borderWidth: 1
-            }
-            ]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    });
-
-
-}
