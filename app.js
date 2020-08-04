@@ -16,7 +16,6 @@ var imagesSection = document.getElementById("imagesSection");
 var aside = document.getElementById("results");
 
 
-
 //Object constructor
 function Product(name) {
     this.name = name;
@@ -41,6 +40,7 @@ Product.prototype.imageExtension = function () {
 };
 var emptyObject = new Product("placehold"); //create after the function is defined because it's an inline function
 var previousRoundSelection = [emptyObject, emptyObject, emptyObject];
+
 
 // create the objects
 function createProducts() {
@@ -89,7 +89,6 @@ function updatePreviousRoundSelection() {
         previousRoundSelection[i] = currentSelectedProducts[i];
     }
 }
-
 //select three objects from the productArray
 function selectThreeProducts() {
 
@@ -113,45 +112,6 @@ function selectThreeProducts() {
 }
 
 
-function renderResults() {
-    var ul = document.createElement("ul");
-    ul.textContent = "Results";
-    var item;
-    for (let i = 0; i < productArray.length; i++) {
-        var li = document.createElement("li");
-        item = productArray[i];
-
-        clicksArray[i] = item.clicks;
-        displayTimesArray[i] = item.displayTimes;
-        li.textContent = `${item.name}: ${item.clicks} votes and ${item.displayTimes} times shown`;
-        ul.appendChild(li);
-    }
-    aside.appendChild(ul);
-}
-
-//collect data and create JSON string
-function storageData() {
-    var jsonString = JSON.stringify(productArray);
-    localStorage.setItem("products", jsonString);
-
-
-}
-
-function parseJsonString() {
-    var previousProducts = JSON.parse(localStorage.getItem("products"));
-    updateDataFromStorage(previousProducts);
-
-}
-
-//add previous displaytimes and clicks to new ones
-function updateDataFromStorage(previousProducts) {
-    for (let i = 0; i < productArray.length; i++) {
-        productArray[i].clicks += previousProducts[i].clicks;
-        productArray[i].displayTimes += previousProducts[i].displayTimes;
-    }
-}
-
-
 //event listener
 imagesSection.addEventListener("click", newThreeImages);
 function newThreeImages(event) { //eventlistener
@@ -171,50 +131,7 @@ function newThreeImages(event) { //eventlistener
         imagesSection.removeEventListener("click", newThreeImages);
         renderResults();
         generateChart();
-        storageData();
-        parseJsonString();
 
-
-    }
-
-
-}
-
-createProducts();
-if (localStorage.length !== 0) {
-    parseJsonString();
-    for (let i = 0; i < clicksArray.length; i++) {
-        clicksArray[i] += previousProducts[i].clicks;
-        displayTimesArray[i] += previousProducts[i].displayTimes;
-    }
-}
-selectThreeProducts();
-
-
-///////// create a chart//////////
-function generateChart() {
-    var cnvs1 = document.getElementById("resultclickschart").getContext('2d');
-    var resultClicksChart = new Chart(cnvs1, {
-        type: 'bar',
-        data: {
-            labels: productsNames,
-            datasets: [{
-                //two data set object
-                label: "clicks",
-                data: clicksArray, //change the array to display new results 
-                backgroundColor: colorArray,
-                borderColor: colorArray,
-                borderWidth: 1,
-                
-            },
-            {
-                label: "display times",
-                data: displayTimesArray,
-                backgroundColor: colorArray,
-                borderColor: colorArray,
-                borderWidth: 1
-            }
-            ]
         },
         options: {
             scales: {
@@ -228,4 +145,4 @@ function generateChart() {
     });
 
 
-}
+
