@@ -15,6 +15,7 @@ var clicksArray = [];
 var imagesSection = document.getElementById("imagesSection");
 var aside = document.getElementById("results");
 
+
 //Object constructor
 function Product(name) {
     this.name = name;
@@ -48,7 +49,6 @@ function createProducts() {
         productArray[i] = productx;
     }
 }
-
 
 //generates a random integer 
 function randomIndex() {
@@ -111,6 +111,7 @@ function selectThreeProducts() {
 
 }
 
+
 //event listener
 imagesSection.addEventListener("click", newThreeImages);
 function newThreeImages(event) { //eventlistener
@@ -130,68 +131,7 @@ function newThreeImages(event) { //eventlistener
         imagesSection.removeEventListener("click", newThreeImages);
         renderResults();
         generateChart();
-    }
 
-
-}
-
-function renderResults() {
-    var ul = document.createElement("ul");
-    ul.textContent = "Results";
-    var item;
-    for (let i = 0; i < productArray.length; i++) {
-        var li = document.createElement("li");
-        item = productArray[i];
-
-        clicksArray[i] = item.clicks;
-        displayTimesArray[i] = item.displayTimes;
-        li.textContent = `${item.name} had ${item.clicks} votes and was shown ${item.displayTimes} times`;
-        ul.appendChild(li);
-    }
-    aside.appendChild(ul);
-}
-
-createProducts();
-selectThreeProducts();
-
-///////// create a chart//////////
-function generateChart() {
-    var cnvs1 = document.getElementById("resultclickschart").getContext('2d');
-    var resultClicksChart = new Chart(cnvs1, {
-        type: 'bar',
-        data: {
-            labels: productsNames,
-            datasets: [{
-                label: "clicks",
-                data: clicksArray,
-                backgroundColor: colorArray,
-                borderColor: colorArray,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    });
-
-    var cnvs2 = document.getElementById("resultdisplayschart").getContext('2d');
-    var resultdisplyChart = new Chart(cnvs2, {
-        type: 'bar',
-        data: {
-            labels: productsNames,
-            datasets: [{
-                label: "display times",
-                data: displayTimesArray,
-                backgroundColor: colorArray,
-                borderColor: colorArray,
-                borderWidth: 1
-            }]
         },
         options: {
             scales: {
@@ -206,13 +146,3 @@ function generateChart() {
 
 
 
-
-
-
-
-
-
-
-
-    
-}
