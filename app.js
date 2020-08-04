@@ -154,6 +154,70 @@ function renderResults() {
 createProducts();
 selectThreeProducts();
 
+
+
+
+
+function storageData() {
+    var jsonString = JSON.stringify(productArray);
+    localStorage.setItem("products", jsonString);
+
+
+}
+
+function parseJsonString() {
+    var previousProducts = JSON.parse(localStorage.getItem("products"));
+    updateDataFromStorage(previousProducts);
+
+}
+
+//add previous displaytimes and clicks to new ones
+function updateDataFromStorage(previousProducts) {
+    for (let i = 0; i < productArray.length; i++) {
+        productArray[i].clicks += previousProducts[i].clicks;
+        productArray[i].displayTimes += previousProducts[i].displayTimes;
+    }
+}
+
+
+//event listener
+imagesSection.addEventListener("click", newThreeImages);
+function newThreeImages(event) { //eventlistener
+
+    resetDisplayed();
+    if (numberOfselections > 0) {
+        imagesSection.innerHTML = "";
+        numberOfselections--;
+        for (let i = 0; i < randomIndexArray.length; i++) {
+            if (event.target.className === productArray[randomIndexArray[i]].name) {
+                productArray[randomIndexArray[i]].clicks++;
+            }
+        }
+
+        selectThreeProducts();
+    } else if (numberOfselections == 0) {
+        imagesSection.removeEventListener("click", newThreeImages);
+        renderResults();
+        generateChart();
+        storageData();
+        parseJsonString();
+
+
+    }
+
+
+}
+
+createProducts();
+if (localStorage.length !== 0) {
+    parseJsonString();
+    for (let i = 0; i < clicksArray.length; i++) {
+        clicksArray[i] += previousProducts[i].clicks;
+        displayTimesArray[i] += previousProducts[i].displayTimes;
+    }
+}
+selectThreeProducts();
+
 ///////// create a chart//////////
 function generateChart() {
     var cnvs1 = document.getElementById("resultclickschart").getContext('2d');
@@ -180,39 +244,8 @@ function generateChart() {
         }
     });
 
-    var cnvs2 = document.getElementById("resultdisplayschart").getContext('2d');
-    var resultdisplyChart = new Chart(cnvs2, {
-        type: 'bar',
-        data: {
-            labels: productsNames,
-            datasets: [{
-                label: "display times",
-                data: displayTimesArray,
-                backgroundColor: colorArray,
-                borderColor: colorArray,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    });
 
 
 
 
-
-
-
-
-
-
-
-    
 }
